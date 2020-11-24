@@ -1,0 +1,126 @@
+﻿import bpy 
+from random import randint
+# ***** Déclaration des fonctions *****
+# fonction pour générer un maillage et l'ajouter à la scène
+def buildMesh(sommets, faces, nom):
+    # création du mesh
+    mesh_data = bpy.data.meshes.new(nom)
+    mesh_data.from_pydata(sommets, [], faces)
+    # création de l'objet contenant le mesh, et ajout à la scène
+    obj = bpy.data.objects.new("My_Object", mesh_data)
+    bpy.context.scene.objects.link(obj)
+
+# fonction pour supprimer de la scène tous les éléments
+def cleanAll():
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete(use_global=False)
+
+# notre fonction pour générer des épées
+def genererEpeePic(longueurlame, largeurlame, longueurmanche, taillepommeau, taillegarde):
+    epeePic=[]
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.1, depth=longueurmanche, location=(0.0, 0.0, -longueurmanche/2.0))
+    epeePic.append(bpy.context.scene.objects.active.name)
+    bpy.ops.mesh.primitive_uv_sphere_add(size=taillepommeau, location=(0.0, 0.0, -longueurmanche))
+    epeePic.append(bpy.context.scene.objects.active.name)
+    bpy.ops.mesh.primitive_cube_add(location=(0.0, 0.0, 0.0))
+    bpy.ops.transform.resize(value=(taillegarde, 0.2, 0.1))
+    epeePic.append(bpy.context.scene.objects.active.name)
+    
+    hauteur = longueurlame
+
+    sommets = [
+    (0.0, 0.1, 0.0),  (-largeurlame/4, 0.2, 0.0), (-largeurlame/2, 0.0, 0.0), 
+    (-largeurlame/4, -0.2, 0.0), (0.0, -0.1, 0.0),
+    (largeurlame/4, -0.2, 0.0), (largeurlame/2, 0.0, 0.0), 
+    (largeurlame/4, 0.2, 0.0),# sommets du bas
+    (0.0, 0.0, hauteur) # sommets du haut
+    ]
+
+    # les sommets sont à ordonner dans le sens 
+    # inverse des aiguilles d'une montre sur l'extérieur de la face
+    faces = [
+    (0, 1, 2, 3, 4, 5, 6, 7), # face du bas
+    (8, 8, 8), # face du haut
+    (0, 1, 8), # faces de liaison entre haut et bas
+    (1, 2, 8), (2, 3, 8), (3, 4, 8), (4, 5, 8), (5, 6, 8), (6, 7, 8), (7, 0, 8)
+    ]
+
+    # création du mesh
+    mesh_data = bpy.data.meshes.new("cube_mesh_data")
+    mesh_data.from_pydata(sommets, [], faces)
+
+    # création de l'objet contenant le mesh, et ajout à la scène
+    obj1 = bpy.data.objects.new("LamePic", mesh_data)
+    bpy.context.scene.objects.link(obj1)
+    
+    epeePic.append(obj1.name)
+    
+    for o in epeePic :
+        bpy.ops.object.select_pattern(pattern=o)
+        bpy.ops.object.join()
+        
+    bpy.ops.object.select_all(action='DESELECT')
+    
+def genererEpeeClassique(longueurlame, largeurlame, longueurmanche, taillepommeau, taillegarde):
+    
+    epeeClass = []
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.1, depth=longueurmanche, location=(0.0, 0.0, -longueurmanche/2.0))
+    epeeClass.append(bpy.context.scene.objects.active.name)
+    bpy.ops.mesh.primitive_uv_sphere_add(size=taillepommeau, location=(0.0, 0.0, -longueurmanche))
+    epeeClass.append(bpy.context.scene.objects.active.name)
+    bpy.ops.mesh.primitive_cube_add(location=(0.0, 0.0, 0.0))
+    bpy.ops.transform.resize(value=(taillegarde, 0.2, 0.1))
+    epeeClass.append(bpy.context.scene.objects.active.name)
+    
+    hauteur = longueurlame
+
+    sommets = [
+    (0.0, 0.1, 0.0),  (-largeurlame/4, 0.2, 0.0), (-largeurlame/2, 0.0, 0.0), 
+    (-largeurlame/4, -0.2, 0.0), (0.0, -0.1, 0.0),
+    (largeurlame/4, -0.2, 0.0), (largeurlame/2, 0.0, 0.0), 
+    (largeurlame/4, 0.2, 0.0),# sommets du bas
+    (0.0, 0.1, hauteur),  (-largeurlame/4, 0.2, hauteur), (-largeurlame/2, 0.0, hauteur), 
+    (-largeurlame/4, -0.2, hauteur), (0.0, -0.1, hauteur),
+    (largeurlame/4, -0.2, hauteur), (largeurlame/2, 0.0, hauteur), 
+    (largeurlame/4, 0.2, hauteur), #sommets du haut
+    (0.0, 0.0, hauteur+0.5) # Pointe
+    ]
+
+    # les sommets sont à ordonner dans le sens 
+    # inverse des aiguilles d'une montre sur l'extérieur de la face
+    faces = [
+    (0, 1, 2, 3, 4, 5, 6, 7), # face du bas
+    #(8, 9, 10, 11, 12, 13, 14, 15), # face du haut
+    (0, 8, 9, 1), # faces de liaison entre haut et bas
+    (1, 2, 10, 9), (2, 3, 11, 10), (3, 4, 12, 11), (4, 5, 13, 12), (5, 6, 14, 13), (6, 7, 15, 14), (7, 0, 8, 15),
+    (8,16, 9), (9,16, 10), (10,16,11), (11,16, 12), (12,16, 13), (13,16, 14), (14,16,15), (15, 16, 8)
+    ]
+
+    # création du mesh
+    mesh_data = bpy.data.meshes.new("cube_mesh_data")
+    mesh_data.from_pydata(sommets, [], faces)
+
+    # création de l'objet contenant le mesh, et ajout à la scène
+    obj = bpy.data.objects.new("LameClass", mesh_data)
+    bpy.context.scene.objects.link(obj)
+
+    epeeClass.append(obj.name)
+    
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    for o in epeeClass :
+        bpy.ops.object.select_pattern(pattern=o)
+    bpy.ops.object.join()
+        
+    
+
+# ***** Programme principal *****
+cleanAll()
+#genererEpeeClassique(randint(5, 10),randint(3, 5),randint(2, 3),randint(3, 6),randint(1, 2)/10)
+#longueurlame, largeurlame, longueurmanche, taillepommeau, taillegarde
+genererEpeeClassique(10, 3, 3, 0.3, 4) # un exemple d'épée
+genererEpeePic(8, 1, 2, 0.2, 4)
+genererEpeeClassique(5, 4, 3, 0.4, 3) # un exemple d'épée
+genererEpeePic(5, 3, 2, 0.7, 2)
+genererEpeeClassique(11, 5, 1, 0.5, 3.3) # un exemple d'épée
+genererEpeePic(6, 4, 5, 0.2, 2.2)
